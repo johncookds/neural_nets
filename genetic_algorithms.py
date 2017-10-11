@@ -26,8 +26,11 @@ class mutate_top(object):
 			if type(setting['value'])==list:
 				setting['value']=self._exrink(setting['value'],len(setting['value'])+int(np.random.normal(scale=setting['scale'])))
 				for lvl in setting['value']:
-					sc=np.random.normal(scale=noise)
-					lvl['value'] = max(32,int(lvl['value']+lvl['scale']*int(sc)))
+					if type(lvl['value'])==list:
+						lvl['value']= [int(lvl['value'][ind]+lvl['scale'][ind]*int(np.random.normal(scale=noise))) for ind in range(len(lvl['value']))]
+					else:
+						sc=np.random.normal(scale=noise)
+						lvl['value'] = int(lvl['value']+lvl['scale']*int(sc))
 			else:
 				setting['value'] = int(setting['value']+setting['scale']*int(np.random.normal(scale=noise)))
 		return organism
@@ -69,7 +72,7 @@ class mutate_top(object):
 #	'hidden_lvls': {'value': [{'value': 284, 'scale': 8.0},{'value':284,'scale':8.0}],'scale':0} #setting scale=0 keeps same number of hidden levels
 #	'n_classes':10 }}
 
-	def evolve(self, original, generations=10):
+	def evolve(self, original, generations=20):
 		pop_fitness=[[original,0.0]]
 		gen=0
 		fit_levels=defaultdict(list)
@@ -78,4 +81,6 @@ class mutate_top(object):
 			pop_fitness=self.test_individuals(pop)
 			fit_levels[gen].append(pop_fitness)
 			gen+=1
+			print("Generation Finished top is:")
+			print(pop_fitness[0])
 		return fit_levels
