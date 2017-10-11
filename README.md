@@ -4,6 +4,9 @@
 
 To provide simple one-step classes to create neural networks. Easy functionality with the Genetic Algorithm repository.
 
+To Do:
+Upload examples
+
 To implement:   
 mini-batch GD(think its full-batch now)   
 batch normalization   
