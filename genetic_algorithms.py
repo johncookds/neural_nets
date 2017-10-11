@@ -46,7 +46,7 @@ class mutate_top(object):
 		return False
 
 	def top_survives(self,fit_sorted,num_children=5):
-		winner=fit_sorted[0]
+		winner=fit_sorted[0][0]
 		children=[]
 		while len(children) <num_children:
 			new_child=self.perturb(winner)
@@ -77,7 +77,7 @@ class mutate_top(object):
 		gen=0
 		fit_levels=defaultdict(list)
 		while gen<generations:
-			pop=self.top_survives(pop_fitness[0])
+			pop=self.top_survives(pop_fitness)
 			pop_fitness=self.test_individuals(pop)
 			fit_levels[gen].append(pop_fitness)
 			gen+=1
