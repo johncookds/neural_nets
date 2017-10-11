@@ -4,7 +4,7 @@
 
 To provide simple one-step classes to create neural networks. Easy functionality with the Genetic Algorithm repository.
 
-To Do:
+To Do:   
 Upload examples
 
 To implement:   
