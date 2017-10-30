@@ -80,8 +80,25 @@ class classification_cnn(object):
 		self.pred=self.build()
 		self.cost=tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=self.y,logits=self.pred))
 
+	def save_config(self,path):
+		keys=['training_epochs','batch_size','learning_rate','n_inputs','conv_lvls','fc_lvls','n_classes']
+		json_dict={k:self.__dict__[k] for k in keys}
+		self.__dict__.update({'model':path})
+		if os.path.exists('/tmp/cnn_map.txt'):
+			with open('/tmp/cnn_map.txt','a') as f:
+				f.write(json.dumps(json_dict))
+				f.write('\n')
+		else:
+			with open('/tmp/cnn_map.txt','w+') as f:
+				f.write(json.dumps(json_dict))
+				f.write('\n')
+
 	def train(self,**kwargs):
 		self.set_params(kwargs=kwargs)
+		self.saver = tf.train.Saver()
+		timestamp=time.time()
+		self.recent_file='/tmp'+'/{}_cnn'.format(str(timestamp))
+		self.save_config(self.recent_file)
 		optimizer = tf.train.AdamOptimizer(learning_rate=self.learning_rate).minimize(self.cost)
 		init = tf.initialize_all_variables()
 		with tf.Session(config=tf.ConfigProto(log_device_placement=True)) as sess:
@@ -99,6 +116,15 @@ class classification_cnn(object):
 					avg_cost += c / total_batch
 				if epoch % self.training_epochs ==0:
 					print("Epoch:", '%04d' % (epoch),"cost=", "{:.9f}".format(avg_cost))
+			self.saver.save(sess,self.recent_file)
+		print('Training Finished')
+
+	def test(self,file=False ,**kwargs):
+		if not file:
+			file = self.recent_file
+		print('Testing...')
+		with tf.Session(config=tf.ConfigProto(log_device_placement=True)) as sess:
+			self.saver.restore(sess,file)
 			correct_prediction = tf.equal(tf.argmax(self.pred,1),tf.argmax(self.y,1))
 			accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
 			accuracy=accuracy.eval({self.x: self.test_x, self.y: self.test_y})
@@ -108,6 +134,7 @@ class classification_cnn(object):
 		self.set_params(kwargs=kwargs)
 		self.set_structure()
 		self.set_cost()
-		acc=self.train()
+		self.train()
+		acc=self.test()
 		return acc
 	
